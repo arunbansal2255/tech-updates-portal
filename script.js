@@ -1,13 +1,49 @@
 let allNews = [];
 
-async function fetchNews() {
+async function fetchSeleniumNews() {
+  // ✅ Replace this URL with YOUR deployed Cloudflare Worker URL
+  const proxyUrl = "https://selenium-proxy-yourname.workers.dev/";
+
   try {
-    const response = await fetch("selenium-news.json");
-    allNews = await response.json();
+    // Add cache-busting query to avoid stale browser cache
+    const response = await fetch(`${proxyUrl}?t=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const html = await response.text();
+
+    // Parse HTML in the browser using DOMParser
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const articles = doc.querySelectorAll("article");
+    allNews = []; // Reset
+
+    articles.forEach((elem) => {
+      const titleElem = elem.querySelector("h2 a");
+      if (!titleElem) return;
+
+      const title = titleElem.textContent.trim();
+      const link = titleElem.href.startsWith("http")
+        ? titleElem.href
+        : "https://www.selenium.dev" + titleElem.getAttribute("href");
+
+      const snippetElem = elem.querySelector("p");
+      const snippet = snippetElem ? snippetElem.textContent.trim() : "";
+
+      // Categorize news
+      let category = "Trending";
+      const text = (title + " " + snippet).toLowerCase();
+      if (["job","hiring","career","vacancy","recruit"].some(k => text.includes(k))) category = "Job";
+      else if (["selenium","tool","webdriver","release","update","feature"].some(k => text.includes(k))) category = "Tool";
+
+      allNews.push({ title, link, snippet, category });
+    });
+
     displayNews("All");
   } catch (err) {
-    console.error("Failed to load JSON:", err);
-    document.getElementById("news").innerHTML = "<p style='color:red;'>⚠️ Could not load news.</p>";
+    console.error("Error fetching Selenium blog:", err);
+    document.getElementById("news").innerHTML =
+      `<p style='color:red;'>⚠️ Could not load Selenium updates. ${err}</p>`;
   }
 }
 
@@ -37,5 +73,5 @@ document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => displayNews(btn.dataset.category));
 });
 
-// Load news on page load
-fetchNews();
+// Fetch news on page load
+fetchSeleniumNews();
