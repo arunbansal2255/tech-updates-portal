@@ -1,60 +1,49 @@
 const allNews = [];
-const API_KEY = ""; // Leave blank for now
 
 async function fetchSeleniumNews() {
-  // ✅ Safe proxy that works on GitHub Pages
-  const corsProxy = "https://api.allorigins.win/raw?url=";
-  const seleniumBlogUrl = encodeURIComponent("https://www.selenium.dev/blog/");
+  const proxyUrl = "https://selenium-proxy-yourname.workers.dev/"; // Replace with your worker URL
 
   try {
-    // Fetch Selenium blog HTML safely
-    const response = await fetch(`${corsProxy}${seleniumBlogUrl}`);
-    if (!response.ok) throw new Error("Failed to fetch Selenium blog");
+    const response = await fetch(proxyUrl);
     const html = await response.text();
 
-    // Parse HTML using Cheerio
-    const $ = cheerio.load(html);
+    // Parse HTML in the browser
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
 
-    $("article").each((i, elem) => {
-      const title = $(elem).find("h2 a").text().trim();
-      const linkPath = $(elem).find("h2 a").attr("href") || "";
-      const link = linkPath.startsWith("http")
-        ? linkPath
-        : "https://www.selenium.dev" + linkPath;
-      const snippet = $(elem).find("p").first().text().trim();
-      const category = categorizeNews(title, snippet);
+    const articles = doc.querySelectorAll("article");
+    articles.forEach((elem) => {
+      const titleElem = elem.querySelector("h2 a");
+      if (!titleElem) return;
 
-      allNews.push({ title, link, snippet, category, videoLinks: [] });
+      const title = titleElem.textContent.trim();
+      const link = titleElem.href.startsWith("http")
+        ? titleElem.href
+        : "https://www.selenium.dev" + titleElem.getAttribute("href");
+      const snippetElem = elem.querySelector("p");
+      const snippet = snippetElem ? snippetElem.textContent.trim() : "";
+
+      let category = "Trending";
+      const text = (title + " " + snippet).toLowerCase();
+      if (["job","hiring","career","vacancy","recruit"].some(k => text.includes(k))) category = "Job";
+      else if (["selenium","tool","webdriver","release","update","feature"].some(k => text.includes(k))) category = "Tool";
+
+      allNews.push({ title, link, snippet, category });
     });
 
     displayNews("All");
   } catch (err) {
     console.error("Error fetching Selenium blog:", err);
     document.getElementById("news").innerHTML =
-      "<p style='color:red;'>⚠️ Could not load Selenium updates.<br>Try refreshing again.</p>";
+      "<p style='color:red;'>⚠️ Could not load Selenium updates. Try refreshing.</p>";
   }
-}
-
-function categorizeNews(title, snippet) {
-  const text = (title + " " + snippet).toLowerCase();
-
-  const jobKeywords = ["job", "hiring", "career", "vacancy", "recruit"];
-  if (jobKeywords.some(word => text.includes(word))) return "Job";
-
-  const toolKeywords = ["selenium", "tool", "webdriver", "release", "update", "feature"];
-  if (toolKeywords.some(word => text.includes(word))) return "Tool";
-
-  return "Trending";
 }
 
 function displayNews(category) {
   const container = document.getElementById("news");
   container.innerHTML = "";
 
-  const filtered =
-    category === "All"
-      ? allNews
-      : allNews.filter(item => item.category === category);
+  const filtered = category === "All" ? allNews : allNews.filter(n => n.category === category);
 
   if (filtered.length === 0) {
     container.innerHTML = "<p>No updates found for this category.</p>";
@@ -64,17 +53,14 @@ function displayNews(category) {
   filtered.forEach(item => {
     const div = document.createElement("div");
     div.classList.add("news-item");
-    let inner = `<a href="${item.link}" target="_blank">${item.title}</a>`;
-    inner += `<p>${item.snippet}</p>`;
-    div.innerHTML = inner;
+    div.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><p>${item.snippet}</p>`;
     container.appendChild(div);
   });
 }
 
 document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    displayNews(btn.dataset.category);
-  });
+  btn.addEventListener("click", () => displayNews(btn.dataset.category));
 });
 
+// Fetch updates on page load
 fetchSeleniumNews();
