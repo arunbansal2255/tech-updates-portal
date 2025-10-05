@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selenium News</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cheerio/dist/cheerio.min.js"></script>
+</head>
+<body>
+<header>
+    <h1>Selenium News</h1>
+</header>
+
+<div class="container">
+    <h2>Categories</h2>
+    <div id="categories">
+        <button class="category-btn" onclick="showCategory('Trending')">Trending</button>
+        <button class="category-btn" onclick="showCategory('Job')">Job</button>
+        <button class="category-btn" onclick="showCategory('Tool')">Tool</button>
+    </div>
+
+    <div id="news-list"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
