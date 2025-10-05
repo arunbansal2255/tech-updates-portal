@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Selenium News</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cheerio/dist/cheerio.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selenium Updates Hub</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-    <h1>Selenium News</h1>
-</header>
+  <header>
+    <h1>Selenium Updates Hub</h1>
+    <p>Latest news and jobs around Selenium</p>
+  </header>
 
-<div class="container">
-    <h2>Categories</h2>
-    <div id="categories">
-        <button class="category-btn" onclick="showCategory('Trending')">Trending</button>
-        <button class="category-btn" onclick="showCategory('Job')">Job</button>
-        <button class="category-btn" onclick="showCategory('Tool')">Tool</button>
+  <main>
+    <div class="categories">
+      <button class="tab" data-category="All">All</button>
+      <button class="tab" data-category="Job">Job</button>
+      <button class="tab" data-category="Tool">Tool</button>
+      <button class="tab" data-category="Trending">Trending</button>
     </div>
+    <div id="news"></div>
+  </main>
 
-    <div id="news-list"></div>
-</div>
+  <footer>
+    <p>Powered by Selenium News JSON</p>
+  </footer>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
