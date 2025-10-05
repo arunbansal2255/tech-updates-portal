@@ -1,41 +1,13 @@
-const allNews = [];
+let allNews = [];
 
-async function fetchSeleniumNews() {
-  const proxyUrl = "https://selenium-proxy-yourname.workers.dev/"; // Replace with your worker URL
-
+async function fetchNews() {
   try {
-    const response = await fetch(proxyUrl);
-    const html = await response.text();
-
-    // Parse HTML in the browser
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    const articles = doc.querySelectorAll("article");
-    articles.forEach((elem) => {
-      const titleElem = elem.querySelector("h2 a");
-      if (!titleElem) return;
-
-      const title = titleElem.textContent.trim();
-      const link = titleElem.href.startsWith("http")
-        ? titleElem.href
-        : "https://www.selenium.dev" + titleElem.getAttribute("href");
-      const snippetElem = elem.querySelector("p");
-      const snippet = snippetElem ? snippetElem.textContent.trim() : "";
-
-      let category = "Trending";
-      const text = (title + " " + snippet).toLowerCase();
-      if (["job","hiring","career","vacancy","recruit"].some(k => text.includes(k))) category = "Job";
-      else if (["selenium","tool","webdriver","release","update","feature"].some(k => text.includes(k))) category = "Tool";
-
-      allNews.push({ title, link, snippet, category });
-    });
-
+    const response = await fetch("selenium-news.json");
+    allNews = await response.json();
     displayNews("All");
   } catch (err) {
-    console.error("Error fetching Selenium blog:", err);
-    document.getElementById("news").innerHTML =
-      "<p style='color:red;'>⚠️ Could not load Selenium updates. Try refreshing.</p>";
+    console.error("Failed to load JSON:", err);
+    document.getElementById("news").innerHTML = "<p style='color:red;'>⚠️ Could not load news.</p>";
   }
 }
 
@@ -43,7 +15,9 @@ function displayNews(category) {
   const container = document.getElementById("news");
   container.innerHTML = "";
 
-  const filtered = category === "All" ? allNews : allNews.filter(n => n.category === category);
+  const filtered = category === "All"
+    ? allNews
+    : allNews.filter(item => item.category === category);
 
   if (filtered.length === 0) {
     container.innerHTML = "<p>No updates found for this category.</p>";
@@ -58,9 +32,10 @@ function displayNews(category) {
   });
 }
 
+// Category buttons
 document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => displayNews(btn.dataset.category));
 });
 
-// Fetch updates on page load
-fetchSeleniumNews();
+// Load news on page load
+fetchNews();
