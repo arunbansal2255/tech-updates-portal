@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Selenium 4.15 Released",
+    "link": "https://www.selenium.dev/blog/selenium-4-15-release/",
+    "snippet": "Selenium 4.15 brings several bug fixes and improvements.",
+    "category": "Tool"
+  },
+  {
+    "title": "Selenium Job Openings at ABC Corp",
+    "link": "https://www.abc.com/jobs/selenium",
+    "snippet": "Looking for QA automation engineers with Selenium experience.",
+    "category": "Job"
+  },
+  {
+    "title": "Top 5 Selenium Tips for QA Engineers",
+    "link": "https://www.selenium.dev/blog/top-5-tips/",
+    "snippet": "Learn best practices for Selenium automation.",
+    "category": "Trending"
+  }
+]
